@@ -31,19 +31,8 @@ namespace BDKursovaya
             comboBox1.Items.Clear();
             while (l.Read()) comboBox1.Items.Add(l[0].ToString());
             l.Close();
-        }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            OleDbCommand cmd = new OleDbCommand($"SELECT Bookings.*, Masters.fullName FROM Bookings LEFT JOIN Masters ON Bookings.master_id = Masters.id WHERE client_id = {currentId} AND appointment_date_time > '{DateTime.Now.ToString()}'", mC);
-            var l = cmd.ExecuteReader();
-            listBox1.Items.Clear();
-            while (l.Read())
-            {
-                listBox1.Items.Add(l[3].ToString() + ' ' + l[9].ToString() + ' ' + l[8].ToString() + ' ' + l[5].ToString());
-            }
-            l.Close();
-
+            RefreshList();
         }
 
         private int getPrice(string serviceTitle)
@@ -110,6 +99,7 @@ namespace BDKursovaya
                 OleDbCommand cmd = new OleDbCommand($"INSERT INTO Bookings (client_id, master_id, service_title, insertion_date, appointment_date_time, price, masterСat) VALUES ({currentId}, {selectedMasterId}, '{selectedService}', '{selectedDate}', '{selectedDate}', {servicePrice}, '{selectedMasterCategory}')",mC);
                 cmd.ExecuteNonQuery();
             }
+            RefreshList();
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -129,6 +119,18 @@ namespace BDKursovaya
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
             RefreshPrice();
+        }
+
+        private void RefreshList()
+        {
+            OleDbCommand cmd = new OleDbCommand($"SELECT Bookings.*, Masters.fullName FROM Bookings LEFT JOIN Masters ON Bookings.master_id = Masters.id WHERE client_id = {currentId} AND appointment_date_time > '{DateTime.Now.ToString()}'", mC);
+            var l = cmd.ExecuteReader();
+            listBox1.Items.Clear();
+            while (l.Read())
+            {
+                listBox1.Items.Add(l[3].ToString() + ' ' + l[9].ToString() + ' ' + l[8].ToString() + ' ' + l[5].ToString());
+            }
+            l.Close();
         }
     }
 }
