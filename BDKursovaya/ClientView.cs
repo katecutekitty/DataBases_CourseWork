@@ -54,28 +54,6 @@ namespace BDKursovaya
             return result;
         }
 
-        private void RefreshPrice()
-        {
-            int currentPrice = 0;
-            if (comboBox1.SelectedItem != null) {
-                currentPrice = getPrice(comboBox1.SelectedItem.ToString());
-                if (comboBox2.SelectedItem != null)
-                {
-                    string category = getIdAndCat(comboBox2.SelectedItem.ToString()).Item2;
-                    if (category == "II")
-                    {
-                        currentPrice *= 2;
-                    }
-                    if (category == "III")
-                    {
-                        currentPrice *= 3;
-                    }
-                    if (category == "Высшая") { currentPrice *= 4; }
-                }
-            }
-            textBox1.Text = currentPrice.ToString();
-        }
-
         private void button2_Click(object sender, EventArgs e)
         {
             if (comboBox1.SelectedItem == null || comboBox2.SelectedItem == null)
@@ -116,6 +94,8 @@ namespace BDKursovaya
             RefreshPrice();
         }
 
+        
+
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
             RefreshPrice();
@@ -123,14 +103,54 @@ namespace BDKursovaya
 
         private void RefreshList()
         {
-            OleDbCommand cmd = new OleDbCommand($"SELECT Bookings.*, Masters.fullName FROM Bookings LEFT JOIN Masters ON Bookings.master_id = Masters.id WHERE client_id = {currentId} AND appointment_date_time > '{DateTime.Now.ToString()}'", mC);
+            OleDbCommand cmd = new OleDbCommand($"SELECT Bookings.*, Masters.fullName FROM Bookings LEFT JOIN Masters ON Bookings.master_id = Masters.id WHERE client_id = {currentId}", mC);
             var l = cmd.ExecuteReader();
             listBox1.Items.Clear();
             while (l.Read())
             {
-                listBox1.Items.Add(l[3].ToString() + ' ' + l[9].ToString() + ' ' + l[8].ToString() + ' ' + l[5].ToString());
+                listBox1.Items.Add(l[0].ToString() + ' ' + l[3].ToString() + ' ' + l[9].ToString() + ' ' + l[8].ToString() + ' ' + l[5].ToString());
             }
             l.Close();
+        }
+        private void RefreshPrice()
+        {
+            int currentPrice = 0;
+            if (comboBox1.SelectedItem != null)
+            {
+                currentPrice = getPrice(comboBox1.SelectedItem.ToString());
+                if (comboBox2.SelectedItem != null)
+                {
+                    string category = getIdAndCat(comboBox2.SelectedItem.ToString()).Item2;
+                    if (category == "II")
+                    {
+                        currentPrice *= 2;
+                    }
+                    if (category == "III")
+                    {
+                        currentPrice *= 3;
+                    }
+                    if (category == "Высшая") { currentPrice *= 4; }
+                }
+            }
+            textBox1.Text = currentPrice.ToString();
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            button1.Enabled = true;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (listBox1.SelectedItems.Count > 0) {
+                string selectedBooking = listBox1.SelectedItems[0].ToString().Substring(0);
+                int _id = Convert.ToInt32(selectedBooking.Substring(0, selectedBooking.IndexOf(" ")));
+                OleDbCommand cmd = new OleDbCommand($"DELETE FROM Bookings WHERE id = {_id}", mC);
+                cmd.ExecuteNonQuery();
+
+                RefreshList();
+            }
+            else button1.Enabled = false;
         }
     }
 }
