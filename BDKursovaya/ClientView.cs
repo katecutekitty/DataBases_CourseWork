@@ -15,16 +15,18 @@ namespace BDKursovaya
     {
         public static string s = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=BeautySalon2.mdb;";
         private OleDbConnection mC;
-        private int currentId = 1;
+        private int currentId;
 
-        public ClientView()
+        public ClientView(int cntClientId)
         {
             InitializeComponent();
             mC = new OleDbConnection(s);
             mC.Open();
 
-            OleDbCommand comm = new OleDbCommand("UPDATE Bookings SET totalPrice = IIf([masterСat] = 'I', [price],IIf([masterСat]= 'II', [price]*2,IIf([masterСat]= 'III', [price]*3,[price]*4)))", mC);
-            comm.ExecuteNonQuery();
+            currentId = cntClientId;
+
+            //OleDbCommand comm = new OleDbCommand("UPDATE (Bookings INNER JOIN Masters ON Bookings.master_id = Masters.id INNER JOIN Services ON Bookings.service_title = Services.title SET totalPrice = IIf([Masters.category] = 'I', [Services.price],IIf([Masters.category]= 'II', [Services.price]*2,IIf([Masters.category]= 'III', [Services.price]*3,[Services.price]*4)))", mC);
+            //comm.ExecuteNonQuery();
 
             OleDbCommand cmd = new OleDbCommand("SELECT * FROM Services", mC);
             var l = cmd.ExecuteReader();
@@ -72,7 +74,7 @@ namespace BDKursovaya
 
                 int servicePrice = getPrice(selectedService);
 
-                string selectedDate = dateTimePicker1.Value.Date.ToString();
+                var selectedDate = dateTimePicker1.Value.Date;
 
                 OleDbCommand cmd = new OleDbCommand($"INSERT INTO Bookings (client_id, master_id, service_title, insertion_date, appointment_date_time, price, masterСat) VALUES ({currentId}, {selectedMasterId}, '{selectedService}', '{selectedDate}', '{selectedDate}', {servicePrice}, '{selectedMasterCategory}')",mC);
                 cmd.ExecuteNonQuery();
@@ -108,10 +110,23 @@ namespace BDKursovaya
             listBox1.Items.Clear();
             while (l.Read())
             {
-                listBox1.Items.Add(l[0].ToString() + ' ' + l[3].ToString() + ' ' + l[9].ToString() + ' ' + l[8].ToString() + ' ' + l[5].ToString());
+                listBox1.Items.Add(l[0].ToString() + ' ' + l[1].ToString() + ' ' + l[3].ToString() + ' ' + l[4].ToString());
             }
             l.Close();
         }
+
+        private void RefreshListSort()
+        {
+            OleDbCommand cmd = new OleDbCommand($"SELECT Bookings.*, Masters.fullName FROM Bookings LEFT JOIN Masters ON Bookings.master_id = Masters.id WHERE client_id = {currentId} ORDER BY appointment_date_time ASC", mC);
+            var l = cmd.ExecuteReader();
+            listBox1.Items.Clear();
+            while (l.Read())
+            {
+                listBox1.Items.Add(l[0].ToString() + ' ' + l[1].ToString() + ' ' + l[3].ToString() + ' ' + l[4].ToString());
+            }
+            l.Close();
+        }
+
         private void RefreshPrice()
         {
             int currentPrice = 0;
@@ -143,14 +158,28 @@ namespace BDKursovaya
         private void button1_Click(object sender, EventArgs e)
         {
             if (listBox1.SelectedItems.Count > 0) {
-                string selectedBooking = listBox1.SelectedItems[0].ToString().Substring(0);
-                int _id = Convert.ToInt32(selectedBooking.Substring(0, selectedBooking.IndexOf(" ")));
+                string selectedBooking = listBox1.SelectedItems[0].ToString();
+                int _id = Convert.ToInt32(selectedBooking.Substring(0, selectedBooking.IndexOf(' ')));
                 OleDbCommand cmd = new OleDbCommand($"DELETE FROM Bookings WHERE id = {_id}", mC);
                 cmd.ExecuteNonQuery();
 
                 RefreshList();
             }
             else button1.Enabled = false;
+        }
+
+        private void listView1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            button1.Enabled = true;
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox1.Checked)
+            {
+                RefreshListSort();
+            }
+            else RefreshList();
         }
     }
 }
