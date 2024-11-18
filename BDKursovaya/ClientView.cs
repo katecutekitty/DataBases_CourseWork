@@ -17,13 +17,17 @@ namespace BDKursovaya
         private OleDbConnection mC;
         private int currentId;
 
+        bool Is_it_start = true;
+
         public ClientView(int cntClientId)
         {
+            
             InitializeComponent();
             mC = new OleDbConnection(s);
             mC.Open();
 
             currentId = cntClientId;
+            //dateTimePicker1.Value= DateTime.Now.AddDays(1);
 
             //OleDbCommand comm = new OleDbCommand("UPDATE (Bookings INNER JOIN Masters ON Bookings.master_id = Masters.id INNER JOIN Services ON Bookings.service_title = Services.title SET totalPrice = IIf([Masters.category] = 'I', [Services.price],IIf([Masters.category]= 'II', [Services.price]*2,IIf([Masters.category]= 'III', [Services.price]*3,[Services.price]*4)))", mC);
             //comm.ExecuteNonQuery();
@@ -35,6 +39,8 @@ namespace BDKursovaya
             l.Close();
 
             RefreshList();
+            
+            dateTimePicker1.Value = DateTime.Now.AddDays(1);
         }
 
         private int getPrice(string serviceTitle)
@@ -54,6 +60,29 @@ namespace BDKursovaya
             }
             l.Close();
             return result;
+        }
+
+        //created by BombasticFantastic
+        private string[] Get_list_of_bool_from_base(System.Data.OleDb.OleDbDataReader l)
+        {
+            string[] splited_text = l[4].ToString().Split(new char[] { ',' });
+            return splited_text;
+        }
+
+        //created by BombasticFantastic
+        private bool FreeDayCheck(System.Data.OleDb.OleDbDataReader l)
+        {
+            int dateTimePicker1_day = DateTime.Parse(dateTimePicker1.Text.ToString()).Day;
+            int between_today_and_date = dateTimePicker1_day-DateTime.Now.Day-1;
+            string[] days = Get_list_of_bool_from_base(l);
+            if (days[between_today_and_date] == "true")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -76,27 +105,71 @@ namespace BDKursovaya
 
                 var selectedDate = dateTimePicker1.Value.Date;
 
-                OleDbCommand cmd = new OleDbCommand($"INSERT INTO Bookings (client_id, master_id, service_title, insertion_date, appointment_date_time, price, masterСat) VALUES ({currentId}, {selectedMasterId}, '{selectedService}', '{selectedDate}', '{selectedDate}', {servicePrice}, '{selectedMasterCategory}')",mC);
+                //
+                //OleDbCommand cmd = new OleDbCommand($"INSERT INTO Bookings (id, client_id, master_id, service_title, appointment_date_time, totalPrice) VALUES (1, 1, 1, 1, 1)", mC);
+
+                OleDbCommand cmd = new OleDbCommand($"INSERT INTO Bookings (client_id, master_id, service_title, appointment_date_time, totalPrice) VALUES ({currentId}, {selectedMasterId}, '{selectedService}', '{selectedDate}', {servicePrice})",mC);
                 cmd.ExecuteNonQuery();
             }
             RefreshList();
         }
 
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        private void RefreshMasters() 
         {
             var selectedService = comboBox1.SelectedItem.ToString();
 
-            OleDbCommand cmd = new OleDbCommand($"SELECT * FROM Masters LEFT JOIN Services ON Masters.specialization = Services.category WHERE Services.title = '{selectedService}'", mC);
+            //OleDbCommand cmd = new OleDbCommand($"SELECT * FROM Masters LEFT JOIN Services ON Masters.specialization = Services.category WHERE Services.title = '{selectedService}'", mC);
+            OleDbCommand cmd = new OleDbCommand($"SELECT * FROM Masters LEFT JOIN Services ON Masters.spec_id = Services.category_id WHERE Services.title = '{selectedService}'", mC);
+
 
             var l = cmd.ExecuteReader();
             comboBox2.Items.Clear();
-            while (l.Read()) comboBox2.Items.Add(l[1].ToString());
+            while (l.Read())
+            {
+                //if (FreeDayCheck(l))
+                if (FreeDayCheck(l))
+                {
+                    comboBox2.Items.Add(l[1].ToString());
+                }
+                //comboBox2.Items.Add(FreeDayCheck(l).ToString());
+            }
             l.Close();
 
+            
+        }
+
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            RefreshMasters();
             RefreshPrice();
         }
 
-        
+        //private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        //{
+        //    var selectedService = comboBox1.SelectedItem.ToString();
+
+        //    //OleDbCommand cmd = new OleDbCommand($"SELECT * FROM Masters LEFT JOIN Services ON Masters.specialization = Services.category WHERE Services.title = '{selectedService}'", mC);
+        //    OleDbCommand cmd = new OleDbCommand($"SELECT * FROM Masters LEFT JOIN Services ON Masters.spec_id = Services.category_id WHERE Services.title = '{selectedService}'", mC);
+
+
+        //    var l = cmd.ExecuteReader();
+        //    comboBox2.Items.Clear();
+        //    while (l.Read())
+        //    {
+        //        //if (FreeDayCheck(l))
+        //        if (FreeDayCheck(l))
+        //        {
+        //            comboBox2.Items.Add(l[1].ToString());
+        //        }
+        //        //comboBox2.Items.Add(FreeDayCheck(l).ToString());
+        //    }
+        //    l.Close();
+
+        //    RefreshPrice();
+        //}
+
+
 
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -113,6 +186,7 @@ namespace BDKursovaya
                 listBox1.Items.Add(l[0].ToString() + ' ' + l[1].ToString() + ' ' + l[3].ToString() + ' ' + l[4].ToString());
             }
             l.Close();
+            //RefreshMasters();
         }
 
         private void RefreshListSort()
@@ -181,5 +255,31 @@ namespace BDKursovaya
             }
             else RefreshList();
         }
+
+        private void dateTimePicker1_ValueChanged(object sender, EventArgs e)
+        {
+            if (Is_it_start)
+            {
+                Is_it_start = false;
+            }
+            else
+            {
+                int dateTimePicker1_day = DateTime.Parse(dateTimePicker1.Text.ToString()).Day;
+                int between_today_and_date = dateTimePicker1_day - DateTime.Now.Day - 1;
+                if ((DateTime.Parse(dateTimePicker1.Text.ToString()).Day - (DateTime.Now.Day)) <= 7)
+                {
+                    RefreshMasters();
+                }
+                else
+                {
+                    comboBox2.Items.Clear();
+                    MessageBox.Show("Максимальное время записи от сегодняшнего дня - неделя");
+                }
+            }
+
+            
+        }
+
+        
     }
 }
