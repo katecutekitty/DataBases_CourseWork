@@ -264,8 +264,8 @@ namespace BDKursovaya
             }
             else
             {
-                int dateTimePicker1_day = DateTime.Parse(dateTimePicker1.Text.ToString()).Day;
-                int between_today_and_date = dateTimePicker1_day - DateTime.Now.Day - 1;
+                DateTime dateTimePicker1_day = DateTime.Parse(dateTimePicker1.Text.ToString());
+                int between_today_and_date = (dateTimePicker1_day - DateTime.Now).Days - 1;
                 if ((DateTime.Parse(dateTimePicker1.Text.ToString()).Day - (DateTime.Now.Day)) <= 7)
                 {
                     RefreshMasters();

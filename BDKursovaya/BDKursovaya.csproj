@@ -46,11 +46,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AdminView.cs">
+    <Compile Include="Add_Lines.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AdminView.Designer.cs">
-      <DependentUpon>AdminView.cs</DependentUpon>
+    <Compile Include="Add_Lines.Designer.cs">
+      <DependentUpon>Add_Lines.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Add_TABLE.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Add_TABLE.Designer.cs">
+      <DependentUpon>Add_TABLE.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Admin_window.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Admin_window.Designer.cs">
+      <DependentUpon>Admin_window.cs</DependentUpon>
     </Compile>
     <Compile Include="AuthForm.cs">
       <SubType>Form</SubType>
@@ -64,22 +76,31 @@
     <Compile Include="ClientView.Designer.cs">
       <DependentUpon>ClientView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RegForm.cs">
+    <Compile Include="Delete_Form5.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="RegForm.Designer.cs">
-      <DependentUpon>RegForm.cs</DependentUpon>
+    <Compile Include="Delete_Form5.Designer.cs">
+      <DependentUpon>Delete_Form5.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="AdminView.resx">
-      <DependentUpon>AdminView.cs</DependentUpon>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Add_Lines.resx">
+      <DependentUpon>Add_Lines.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Add_TABLE.resx">
+      <DependentUpon>Add_TABLE.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Admin_window.resx">
+      <DependentUpon>Admin_window.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="AuthForm.resx">
       <DependentUpon>AuthForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ClientView.resx">
       <DependentUpon>ClientView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Delete_Form5.resx">
+      <DependentUpon>Delete_Form5.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -90,9 +111,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="RegForm.resx">
-      <DependentUpon>RegForm.cs</DependentUpon>
-    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
