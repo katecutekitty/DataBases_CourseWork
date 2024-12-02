@@ -37,9 +37,16 @@ namespace BDKursovaya
             comboBox1.Items.Clear();
             while (l.Read()) comboBox1.Items.Add(l[0].ToString());
             l.Close();
-
             RefreshList();
-            
+
+            OleDbCommand cmd1 = new OleDbCommand("SELECT * FROM Services", mC);
+            var l1 = cmd1.ExecuteReader();
+            comboBox4.Items.Clear();
+            while (l1.Read()) comboBox4.Items.Add(l1[0].ToString());
+            l1.Close();
+
+
+
             dateTimePicker1.Value = DateTime.Now.AddDays(1);
         }
 
@@ -280,6 +287,34 @@ namespace BDKursovaya
             
         }
 
-        
+        private void comboBox4_SelectedIndexChanged(object sender, EventArgs e)//фильтрация по виду услуги
+        {
+            OleDbCommand cmd = new OleDbCommand($"SELECT Bookings.*, Masters.fullName FROM Bookings LEFT JOIN Masters ON Bookings.master_id = Masters.id WHERE client_id = {currentId} AND service_title='{comboBox4.SelectedItem.ToString()}'", mC);
+            var l = cmd.ExecuteReader();
+            listBox1.Items.Clear();
+            while (l.Read())
+            {
+                listBox1.Items.Add(l[0].ToString() + ' ' + l[1].ToString() + ' ' + l[3].ToString() + ' ' + l[4].ToString());
+            }
+            l.Close();
+        }
+
+        private void dateTimePicker2_ValueChanged(object sender, EventArgs e)//фильтрация по времени
+        {
+            //MessageBox.Show(DateTime.Parse(dateTimePicker2.Text).ToString());
+            OleDbCommand cmd = new OleDbCommand($"SELECT Bookings.*, Masters.fullName FROM Bookings LEFT JOIN Masters ON Bookings.master_id = Masters.id WHERE client_id = {currentId}", mC);
+            var l = cmd.ExecuteReader();
+            listBox1.Items.Clear();
+            while (l.Read())
+            {
+                if (DateTime.Parse(l[4].ToString()) > DateTime.Parse(dateTimePicker2.Text))
+                {
+
+                    listBox1.Items.Add(l[0].ToString() + ' ' + l[1].ToString() + ' ' + l[3].ToString() + ' ' + l[4].ToString());
+                }
+                
+            }
+            l.Close();
+        }
     }
 }

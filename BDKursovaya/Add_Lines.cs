@@ -25,6 +25,7 @@ namespace cursovaya
         }
         public void Add_Tables_names()
         {
+            
             comboBox1.Items.Clear();
             DataTable tables = DbCon.GetSchema("Tables");
             foreach (DataRow row in tables.Rows)
@@ -40,6 +41,7 @@ namespace cursovaya
 
         public void Add_Fields_names()
         {
+            bool tr= true;
             string tableName = comboBox1.SelectedItem.ToString();
             string sql_quest = $"SELECT * FROM [{tableName}] where 1=0";
             OleDbCommand cmd = new OleDbCommand(sql_quest, DbCon);
@@ -49,8 +51,14 @@ namespace cursovaya
             //DataTable columns = DbCon.GetSchema("Columns", new string[] { null, null, tableName, null });
             foreach (DataRow row in schemTable.Rows)
             {
-                string columnName = row["ColumnName"].ToString();
-                listBox1.Items.Add(columnName);
+                if (tr)
+                {
+                    tr = false;
+                }
+                else {
+                    string columnName = row["ColumnName"].ToString();
+                    listBox1.Items.Add(columnName);
+                }
             }
         }
 
@@ -220,6 +228,11 @@ namespace cursovaya
                 }
             }
             else { MessageBox.Show("Вы не можете изменить таблицу, пока список добавляемых значений заполнен в соответствии текущей таблицы", "Ошибка"); }
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
 
         }
     }
